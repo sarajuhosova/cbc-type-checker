@@ -1,0 +1,4 @@
+name: cbc-type-checker
+include: src
+depend: standard-library
+flags: --erasure --erase-record-parameters
