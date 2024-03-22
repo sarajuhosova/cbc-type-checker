@@ -1,8 +1,8 @@
 {-# OPTIONS --allow-unsolved-metas #-}
 
-module Scope where
+module Util.Scope where
 
-open import Data.List.Base
+open import Haskell.Prelude
 
 -- we define the scope as a list of names
 --

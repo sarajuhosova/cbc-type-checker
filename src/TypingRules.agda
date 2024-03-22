@@ -2,7 +2,7 @@ module TypingRules {@0 name : Set} where
 
 open import Context {name}
 open import Lang {name}
-open import Scope
+open import Util.Scope
 
 private variable
   @0 x : name
@@ -13,6 +13,7 @@ private variable
 data TyTerm (@0 Γ : Context α) : @0 Term α → Type → Set 
   
 infix 3 TyTerm
+-- use \∶ to make the symbol
 syntax TyTerm Γ u t = Γ ⊢ u ∶ t
 
 data TyTerm {α} Γ where

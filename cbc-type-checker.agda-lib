@@ -1,4 +1,4 @@
 name: cbc-type-checker
 include: src
-depend: standard-library
+depend: agda2hs
 flags: --erasure --erase-record-parameters
