@@ -2,6 +2,7 @@ module TypingRules {@0 name : Set} where
 
 open import Context {name}
 open import Lang {name}
+open import Type
 open import Util.Scope
 
 private variable
@@ -10,7 +11,7 @@ private variable
   a b : Type
   u v : Term α
 
-data TyTerm (@0 Γ : Context α) : @0 Term α → Type → Set 
+data TyTerm (@0 Γ : Context α) : @0 Term α → @0 Type → Set 
   
 infix 3 TyTerm
 -- use \∶ to make the symbol
@@ -33,3 +34,5 @@ data TyTerm {α} Γ where
     → Γ ⊢ v ∶ a
     ------------------------------------
     → Γ ⊢ TApp u v ∶ b
+
+{-# COMPILE AGDA2HS TyTerm deriving Show #-}

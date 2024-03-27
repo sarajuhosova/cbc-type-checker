@@ -7,22 +7,14 @@ open import Haskell.Extra.Refinement
 open import Haskell.Extra.Sigma
 open import Context {name}
 open import Lang {name}
+open import Type
 open import TypingRules {name}
--- open import Util.Sigma
 open import Util.Scope
 open import Util.Evaluator
 
 private variable
   @0 α : Scope name
   u : Term α
-
-convert : (a b : Type) → Evaluator (a ≡ b)
-convert TyNat TyNat = return refl
-convert (TyArr la lb) (TyArr ra rb) = do
-  refl ← convert la ra
-  refl ← convert lb rb
-  return refl
-convert _ _ = evalError "unequal types"
 
 inferType : ∀ (Γ : Context α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
 checkType : ∀ (Γ : Context α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
@@ -45,5 +37,9 @@ checkType ctx (TLam x body) ty =
     _ → evalError "lambda should have a function type"
 checkType ctx term ty = do
   (t , tr) ← inferType ctx term
-  refl ← convert t ty
-  return tr
+  case (t == ty) of λ where
+    True ⦃ h ⦄ → return (substEq (λ x → TyTerm ctx term x) h tr)
+    False → evalError "unequal types"
+    
+{-# COMPILE AGDA2HS inferType #-}
+{-# COMPILE AGDA2HS checkType #-}
