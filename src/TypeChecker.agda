@@ -1,4 +1,4 @@
-module TypeChecker {@0 name : Set} where
+module TypeChecker {name : Set} where
 
 open import Agda.Builtin.Equality
 open import Context {name}
@@ -13,7 +13,7 @@ open import Effect.Monad
 open RawMonad ⦃ ... ⦄
 
 private variable
-  @0 α : Scope name
+  α : Scope name
   u : Term α
 
 -- Type checking function application requires conversion checking,

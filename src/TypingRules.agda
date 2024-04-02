@@ -1,16 +1,16 @@
-module TypingRules {@0 name : Set} where
+module TypingRules {name : Set} where
 
 open import Context {name}
 open import Lang {name}
 open import Util.Scope
 
 private variable
-  @0 x : name
-  @0 α : Scope name
+  x : name
+  α : Scope name
   a b : Type
   u v : Term α
 
-data TyTerm (@0 Γ : Context α) : @0 Term α → Type → Set 
+data TyTerm (Γ : Context α) : Term α → Type → Set 
   
 infix 3 TyTerm
 syntax TyTerm Γ u t = Γ ⊢ u ∶ t -- use \∶ to make the symbol
