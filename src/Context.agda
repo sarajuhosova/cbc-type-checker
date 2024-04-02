@@ -1,6 +1,6 @@
 module Context {@0 name : Set} where
 
-open import Haskell.Prelude
+open import Data.List
 open import Lang {name}
 open import Util.Scope
 

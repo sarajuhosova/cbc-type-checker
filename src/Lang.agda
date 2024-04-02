@@ -1,6 +1,6 @@
 module Lang {@0 name : Set} where
 
-open import Haskell.Prelude
+open import Data.List
 open import Util.Scope
 
 private variable
