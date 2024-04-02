@@ -16,6 +16,9 @@ private variable
   @0 α : Scope name
   u : Term α
 
+-- Type checking function application requires conversion checking,
+-- i.e. checking whether two types are equal.
+--
 convert : (a b : Type) → Evaluator (a ≡ b)
 convert TyNat TyNat = return refl
 convert (TyArr la lb) (TyArr ra rb) = do
@@ -24,6 +27,11 @@ convert (TyArr la lb) (TyArr ra rb) = do
   return refl
 convert _ _ = evalError "unequal types"
 
+-- Bidirectional style type checking, with two functions defined mutually.
+--
+-- Both functions return a typing judgement for the specific input term,
+-- so we know that we get a correct typing derivation 
+-- but also that it is a derivation for the given input(s).
 inferType : ∀ (Γ : Context α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
 checkType : ∀ (Γ : Context α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
 
@@ -41,5 +49,7 @@ checkType ctx (TLam x body) (TyArr a b) = do
 checkType ctx (TLam x body) _ = evalError "lambda should have a function type"
 checkType ctx term ty = do
   (t , tr) ← inferType ctx term
+  -- we call the conversion checker, which (if it succeeds) returns an equality proof,
+  -- unifying the left- and right-hand sides of the equality for the remainder of the do-block
   refl ← convert t ty
   return tr

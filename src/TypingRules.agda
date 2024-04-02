@@ -13,8 +13,7 @@ private variable
 data TyTerm (@0 Γ : Context α) : @0 Term α → Type → Set 
   
 infix 3 TyTerm
--- use \∶ to make the symbol
-syntax TyTerm Γ u t = Γ ⊢ u ∶ t
+syntax TyTerm Γ u t = Γ ⊢ u ∶ t -- use \∶ to make the symbol
 
 data TyTerm {α} Γ where
 
