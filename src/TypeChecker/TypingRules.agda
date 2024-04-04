@@ -1,7 +1,8 @@
-module TypingRules {name : Set} where
+module TypeChecker.TypingRules {name : Set} where
 
-open import Context {name}
-open import Lang {name}
+open import Term {name}
+open import TypeChecker.Type
+open import Util.Context {name}
 open import Util.Scope
 
 private variable
@@ -10,7 +11,7 @@ private variable
   a b : Type
   u v : Term α
 
-data _⊢_∶_ (Γ : Context α) : Term α → Type → Set where
+data _⊢_∶_ (Γ : Context Type α) : Term α → Type → Set where
   TyTVar
     : (p : x ∈ α)
     ----------------------------------

@@ -1,14 +1,14 @@
 module TypeChecker {name : Set} where
 
-open import Agda.Builtin.Equality
-open import Context {name}
-open import Lang {name}
-open import TypingRules {name}
-open import Util.Scope
+open import Term {name}
+open import TypeChecker.Type
+open import TypeChecker.TypingRules {name}
+open import Util.Context {name}
 open import Util.Evaluator
+open import Util.Scope
 
+open import Agda.Builtin.Equality
 open import Data.Product
-
 open import Effect.Monad
 open RawMonad ⦃ ... ⦄
 
@@ -32,8 +32,8 @@ convert _ _ = evalError "unequal types"
 -- Both functions return a typing judgement for the specific input term,
 -- so we know that we get a correct typing derivation 
 -- but also that it is a derivation for the given input(s).
-inferType : ∀ (Γ : Context α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
-checkType : ∀ (Γ : Context α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
+inferType : ∀ (Γ : Context Type α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
+checkType : ∀ (Γ : Context Type α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
 
 inferType ctx (TVar x index) = return (lookupVar ctx x index , TyTVar index)
 inferType ctx (TLam x body) = evalError "cannot infer the type of a lambda"

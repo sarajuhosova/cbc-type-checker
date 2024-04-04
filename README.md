@@ -8,10 +8,12 @@ To get the code working, follow these steps:
 
 1. Install Agda by following [the instruction on the website](https://agda.readthedocs.io/en/latest/getting-started/installation.html).
 2. Install the `standard-library` using the [installation guide](https://github.com/agda/agda-stdlib/blob/master/doc/installation-guide.md).
+3. To test that everything works, compile the `src/Everything.agda` file.
 
 ## Overview
 
 The type checker is built up using various components, outlined below.
+A small example where the type checker is used can be found in the `Everything` module.
 
 ### `Util.Scope`
 
@@ -32,7 +34,7 @@ data _∈_ {name : Set} (x : name) : Scope name → Set where
     there : ∀ {n : name} {ns : Scope name} (_ : x ∈ ns) → x ∈ (n ∷ ns)
 ```
 
-### `Lang`
+### `Term` and `TypeChecker.Type`
 
 We construct a well-scoped syntax for the language:
 
@@ -50,7 +52,7 @@ data Term (α : Scope name) : Set where
 In our syntax, the identity function (`λ x → x`) would look like this: `TLam "x" (TVar "x" here)`.
 This term would type check against type `TyArr TyNat TyNat`, but also against `TyArr (TyArr TyNat TyNat) (TyArr TyNat TyNat)`.
 
-### `TypingRules`
+### `TypeChecker.TypingRules`
 
 Next, we specify the typing rules of the language:
 
@@ -77,22 +79,26 @@ infix 3 _⊢_∶_
 
 Now we can write `Γ ⊢ u ∶ t` for `u` has type `t` under context `Γ` (where `u` and `Γ` are parametrised with scope `α`).
 
-### `Context`
+### `Util.Context`
 
 We begin the implementation of the type checker by defining a variable context as an `All`.
 We parametrise the context on `Scope` and define a variable lookup function:
 
 ```agda
-Context : (α : Scope name) → Set
-Context α = All (λ _ → Type) α
+Context : (v : Set) → (α : Scope name) → Set
+Context v α = All (λ _ → v) α
 
-lookupVar : (Γ : Context α) (x : name) (p : x ∈ α) → Type
-lookupVar (t ∷ _  ) x here = t
+lookupVar : (Γ : Context v α) (x : name) (p : x ∈ α) → v
+lookupVar (v ∷ _  ) x here = v
 lookupVar (_ ∷ ctx) x (there p) = lookupVar ctx x p
 ```
 
 Given a predicate `P`, `All P xs` means that every element in `xs` satisfies `P`.
 Here it allows us to assign a type to each variable in the scope.
+
+Note that `Context` takes a parameter `v`, which allows us to determine what kind of value we want to assign to variables.
+When used in a type checker, we pass `Type` as an argument for `v`.
+If we wanted to use `Context` in an interpreter instead, we would pass the value type.
 
 ### `Util.Evaluator`
 
