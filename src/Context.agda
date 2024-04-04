@@ -4,17 +4,21 @@ open import Data.List
 open import Lang {name}
 open import Util.Scope
 
+open import Data.List.Relation.Unary.All
+
 private variable
   α : Scope name
 
-data Context : Scope name → Set where
-  CtxEmpty  : Context []
-  CtxExtend : Context α → (x : name) → Type → Context (x ∷ α)
+Context : (α : Scope name) → Set
+Context α = All (λ _ → Type) α
+
+cempty : Context sempty
+cempty = []
 
 _,_∶_ : Context α → (x : name) → Type → Context (x ∷ α)
-_,_∶_ = CtxExtend
+_,_∶_ ctx _ t = t ∷ ctx
 infix 4 _,_∶_
 
 lookupVar : (Γ : Context α) (x : name) (p : x ∈ α) → Type
-lookupVar (CtxExtend ctx _ t) x here = t
-lookupVar (CtxExtend ctx _ t) x (there p) = lookupVar ctx x p
+lookupVar (t ∷ _  ) x here = t
+lookupVar (_ ∷ ctx) x (there p) = lookupVar ctx x p

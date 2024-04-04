@@ -41,11 +41,11 @@ inferType ctx (TApp lam arg) = do
   (TyArr a b) , gtu ← inferType ctx lam
     where _ → evalError "application head should have a function type"
   gtv ← checkType ctx arg a
-  return (b , TyApp gtu gtv)
+  return (b , TyTApp gtu gtv)
 
 checkType ctx (TLam x body) (TyArr a b) = do
   tr ← checkType (ctx , x ∶ a) body b
-  return (TyLam tr)
+  return (TyTLam tr)
 checkType ctx (TLam x body) _ = evalError "lambda should have a function type"
 checkType ctx term ty = do
   (t , tr) ← inferType ctx term

@@ -12,3 +12,6 @@ Scope name = List name
 data _∈_ {name : Set} (x : name) : Scope name → Set where
     here  : ∀ {ns : Scope name}                          → x ∈ (x ∷ ns)
     there : ∀ {n : name} {ns : Scope name} (_ : x ∈ ns) → x ∈ (n ∷ ns)
+
+sempty : {name : Set} → Scope name
+sempty = []

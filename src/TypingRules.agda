@@ -10,25 +10,21 @@ private variable
   a b : Type
   u v : Term α
 
-data TyTerm (Γ : Context α) : Term α → Type → Set 
-  
-infix 3 TyTerm
-syntax TyTerm Γ u t = Γ ⊢ u ∶ t -- use \∶ to make the symbol
-
-data TyTerm {α} Γ where
-
+data _⊢_∶_ (Γ : Context α) : Term α → Type → Set where
   TyTVar
     : (p : x ∈ α)
     ----------------------------------
     → Γ ⊢ TVar x p ∶ lookupVar Γ x p
 
-  TyLam
+  TyTLam
     : Γ , x ∶ a ⊢ u ∶ b
     -------------------------------
     → Γ ⊢ TLam x u ∶ TyArr a b
 
-  TyApp
+  TyTApp
     : Γ ⊢ u ∶ (TyArr a b)
     → Γ ⊢ v ∶ a
     ------------------------------------
     → Γ ⊢ TApp u v ∶ b
+
+infix 3 _⊢_∶_
