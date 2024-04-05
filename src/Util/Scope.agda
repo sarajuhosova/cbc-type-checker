@@ -7,11 +7,13 @@ open import Data.List
 Scope : (name : Set) → Set
 Scope name = List name
 
+-- type \Phi to get Φ
+Φ : {name : Set} → Scope name
+Φ = []
+
 -- An assertion for "x is a member of the scope".
 -- 
 data _∈_ {name : Set} (x : name) : Scope name → Set where
-    here  : ∀ {ns : Scope name}                          → x ∈ (x ∷ ns)
+    -- type \in to get ∈
+    here  : ∀ {ns : Scope name}                         → x ∈ (x ∷ ns)
     there : ∀ {n : name} {ns : Scope name} (_ : x ∈ ns) → x ∈ (n ∷ ns)
-
-sempty : {name : Set} → Scope name
-sempty = []

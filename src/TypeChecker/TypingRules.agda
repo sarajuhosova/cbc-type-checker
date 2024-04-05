@@ -11,21 +11,22 @@ private variable
   a b : Type
   u v : Term α
 
+-- type \|- to type ⊢
 data _⊢_∶_ (Γ : Context Type α) : Term α → Type → Set where
-  TyTVar
+  ⊢`
     : (p : x ∈ α)
     ----------------------------------
-    → Γ ⊢ TVar x p ∶ lookupVar Γ x p
+    → Γ ⊢ ` x # p ∶ lookupVar Γ x p
 
-  TyTLam
+  ⊢ƛ
     : Γ , x ∶ a ⊢ u ∶ b
     -------------------------------
-    → Γ ⊢ TLam x u ∶ TyArr a b
+    → Γ ⊢ (ƛ x ⇒ u) ∶ a ⇒ b
 
-  TyTApp
-    : Γ ⊢ u ∶ (TyArr a b)
+  ⊢·
+    : Γ ⊢ u ∶ (a ⇒ b)
     → Γ ⊢ v ∶ a
     ------------------------------------
-    → Γ ⊢ TApp u v ∶ b
+    → Γ ⊢ u · v ∶ b
 
 infix 3 _⊢_∶_

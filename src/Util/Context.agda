@@ -13,8 +13,9 @@ private variable
 Context : (v : Set) → (α : Scope name) → Set
 Context v α = All (λ _ → v) α
 
-cempty : Context v sempty
-cempty = []
+-- type \emptyset to get ∅
+∅ : Context v Φ
+∅ = []
 
 _,_∶_ : Context v α → (x : name) → v → Context v (x ∷ α)
 _,_∶_ ctx _ v = v ∷ ctx

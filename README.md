@@ -40,39 +40,39 @@ We construct a well-scoped syntax for the language:
 
 ```agda
 data Type : Set where
-  TyNat : Type
-  TyArr : (a b : Type) → Type
+  `ℕ : Type
+  _⇒_ : (a b : Type) → Type
 
 data Term (α : Scope name) : Set where
-  TVar  : (x : name) → x ∈ α → Term α
-  TLam  : (x : name) (v : Term (x ∷ α)) → Term α
-  TApp  : (u v : Term α) → Term α
+  `_#_ : (x : name) → x ∈ α → Term α
+  ƛ_⇒_ : (x : name) (v : Term (x ∷ α)) → Term α
+  _·_   : (u v : Term α) → Term α
 ```
 
-In our syntax, the identity function (`λ x → x`) would look like this: `TLam "x" (TVar "x" here)`.
-This term would type check against type `TyArr TyNat TyNat`, but also against `TyArr (TyArr TyNat TyNat) (TyArr TyNat TyNat)`.
+In our syntax, the identity function (`λ x → x`) would look like this: ``ƛ "x" ⇒ (` "x" # here)``.
+This term would type check against type `` `ℕ ⇒ `ℕ``, but also against ``(`ℕ ⇒ `ℕ) ⇒ (`ℕ ⇒ `ℕ)``.
 
 ### `TypeChecker.TypingRules`
 
 Next, we specify the typing rules of the language:
 
 ```agda
-data _⊢_∶_ (Γ : Context α) : Term α → Type → Set where
-  TyTVar
+data _⊢_∶_ (Γ : Context Type α) : Term α → Type → Set where
+  ⊢`
     : (p : x ∈ α)
     ----------------------------------
-    → Γ ⊢ TVar x p ∶ lookupVar Γ x p
+    → Γ ⊢ ` x # p ∶ lookupVar Γ x p
 
-  TyTLam
+  ⊢ƛ
     : Γ , x ∶ a ⊢ u ∶ b
     -------------------------------
-    → Γ ⊢ TLam x u ∶ TyArr a b
+    → Γ ⊢ (ƛ x ⇒ u) ∶ a ⇒ b
 
-  TyTApp
-    : Γ ⊢ u ∶ (TyArr a b)
+  ⊢·
+    : Γ ⊢ u ∶ (a ⇒ b)
     → Γ ⊢ v ∶ a
     ------------------------------------
-    → Γ ⊢ TApp u v ∶ b
+    → Γ ⊢ u · v ∶ b
 
 infix 3 _⊢_∶_
 ```
@@ -118,8 +118,8 @@ In simply-typed lambda calculus, conversion is just definitional equality, so im
 
 ```agda
 convert : (a b : Type) → Evaluator (a ≡ b)
-convert TyNat TyNat = return refl
-convert (TyArr la lb) (TyArr ra rb) = do
+convert `ℕ `ℕ = return refl
+convert (la ⇒ lb) (ra ⇒ rb) = do
   refl ← convert la ra
   refl ← convert lb rb
   return refl
@@ -129,21 +129,21 @@ convert _ _ = evalError "unequal types"
 Finally, we define the [bidirectional-style type checking functions](https://plfa.github.io/Inference/) mutually:
 
 ```agda
-inferType : ∀ (Γ : Context α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
-checkType : ∀ (Γ : Context α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
+inferType : ∀ (Γ : Context Type α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
+checkType : ∀ (Γ : Context Type α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
 
-inferType ctx (TVar x index) = return (lookupVar ctx x index , TyTVar index)
-inferType ctx (TLam x body) = evalError "cannot infer the type of a lambda"
-inferType ctx (TApp lam arg) = do
-  (TyArr a b) , gtu ← inferType ctx lam
+inferType ctx (` x # index) = return (lookupVar ctx x index , ⊢` index)
+inferType ctx (ƛ x ⇒ body) = evalError "cannot infer the type of a lambda"
+inferType ctx (lam · arg) = do
+  (a ⇒ b) , gtu ← inferType ctx lam
     where _ → evalError "application head should have a function type"
   gtv ← checkType ctx arg a
-  return (b , TyTApp gtu gtv)
+  return (b , ⊢· gtu gtv)
 
-checkType ctx (TLam x body) (TyArr a b) = do
+checkType ctx (ƛ x ⇒ body) (a ⇒ b) = do
   tr ← checkType (ctx , x ∶ a) body b
-  return (TyTLam tr)
-checkType ctx (TLam x body) _ = evalError "lambda should have a function type"
+  return (⊢ƛ tr)
+checkType ctx (ƛ _ ⇒ _) _ = evalError "lambda should have a function type"
 checkType ctx term ty = do
   (t , tr) ← inferType ctx term
   refl ← convert t ty

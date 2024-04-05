@@ -20,8 +20,8 @@ private variable
 -- i.e. checking whether two types are equal.
 --
 convert : (a b : Type) → Evaluator (a ≡ b)
-convert TyNat TyNat = return refl
-convert (TyArr la lb) (TyArr ra rb) = do
+convert `ℕ `ℕ = return refl
+convert (la ⇒ lb) (ra ⇒ rb) = do
   refl ← convert la ra
   refl ← convert lb rb
   return refl
@@ -35,18 +35,18 @@ convert _ _ = evalError "unequal types"
 inferType : ∀ (Γ : Context Type α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
 checkType : ∀ (Γ : Context Type α) u (ty : Type) → Evaluator (Γ ⊢ u ∶ ty)
 
-inferType ctx (TVar x index) = return (lookupVar ctx x index , TyTVar index)
-inferType ctx (TLam x body) = evalError "cannot infer the type of a lambda"
-inferType ctx (TApp lam arg) = do
-  (TyArr a b) , gtu ← inferType ctx lam
+inferType ctx (` x # index) = return (lookupVar ctx x index , ⊢` index)
+inferType ctx (ƛ x ⇒ body) = evalError "cannot infer the type of a lambda"
+inferType ctx (lam · arg) = do
+  (a ⇒ b) , gtu ← inferType ctx lam
     where _ → evalError "application head should have a function type"
   gtv ← checkType ctx arg a
-  return (b , TyTApp gtu gtv)
+  return (b , ⊢· gtu gtv)
 
-checkType ctx (TLam x body) (TyArr a b) = do
+checkType ctx (ƛ x ⇒ body) (a ⇒ b) = do
   tr ← checkType (ctx , x ∶ a) body b
-  return (TyTLam tr)
-checkType ctx (TLam x body) _ = evalError "lambda should have a function type"
+  return (⊢ƛ tr)
+checkType ctx (ƛ _ ⇒ _) _ = evalError "lambda should have a function type"
 checkType ctx term ty = do
   (t , tr) ← inferType ctx term
   -- we call the conversion checker, which (if it succeeds) returns an equality proof,

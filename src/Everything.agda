@@ -18,14 +18,14 @@ private
   open import Effect.Monad
   open RawMonad ⦃ ... ⦄
 
-  id-fun : Term sempty
-  id-fun = TLam "x" (TVar "x" here)
+  ƛx⇒x : Term Φ
+  ƛx⇒x = ƛ "x" ⇒ (` "x" # here)
 
-  id-type : Type
-  id-type = TyArr TyNat TyNat
+  ℕ⇒ℕ : Type
+  ℕ⇒ℕ = `ℕ ⇒ `ℕ
 
-  id-tc : Evaluator (cempty ⊢ id-fun ∶ id-type)
-  id-tc = checkType cempty id-fun id-type
+  ⊢ƛx⇒x:ℕ⇒ℕ : Evaluator (∅ ⊢ ƛx⇒x ∶ ℕ⇒ℕ)
+  ⊢ƛx⇒x:ℕ⇒ℕ = checkType ∅ ƛx⇒x ℕ⇒ℕ
 
-  test-id : id-tc ≡ return (TyTLam (TyTVar here))
-  test-id = refl
+  test : ⊢ƛx⇒x:ℕ⇒ℕ ≡ return (⊢ƛ (⊢` here))
+  test = refl
