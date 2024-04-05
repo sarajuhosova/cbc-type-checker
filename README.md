@@ -126,7 +126,7 @@ convert (TyArr la lb) (TyArr ra rb) = do
 convert _ _ = evalError "unequal types"
 ```
 
-Finally, we define the bidirectional style type checking functions mutually:
+Finally, we define the [bidirectional-style type checking functions](https://plfa.github.io/Inference/) mutually:
 
 ```agda
 inferType : ∀ (Γ : Context α) u             → Evaluator (Σ[ t ∈ Type ] Γ ⊢ u ∶ t)
@@ -156,3 +156,4 @@ Things to note:
   This includes the ability to pattern match on the output of a statement in a `do`-block, and the use of `where` to deal with the cases that are not on the "happy path" (in this case, by throwing an error if the head of an application does not have a function type).
 * In the final case for `checkType`, we call the conversion checker, which (if it succeeds) returns an equality proof.
   We then match this equality proof against `refl`, unifying the left- and right-hand sides of the equality for the remainder of the `do`-block.
+* Since we return an error message instead of providing evidence of a contradiction in the negative cases, our type checker is _sound_ but _not complete_, i.e. "if it returns a derivation, we know it is correct; but there is nothing to prevent us from writing a function that always returns an error, even when there exists a correct derivation" (see [PLFA: Inference](https://plfa.github.io/Inference/#soundness-and-completeness)).
