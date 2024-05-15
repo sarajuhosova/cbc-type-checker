@@ -1,34 +1,40 @@
-module TypeChecker.TyEff {name : Set} where
+module Exceptions {name : Set} {exception : Set} where
 
-open import Term {name}
-open import TypeChecker.Type
-open import Util.Context {name}
-open import Util.Scope
-
-open import Data.String
 open import Data.List
+open import Util.Scope
+open import Util.Context
 open import Data.Empty
 
 -- We'll use annotated types, with annotations being a set of identifiers
 -- marking the names of the kinds of exceptions that a computation might throw
-Exception = String
-Ann = List Exception
-open Annotated (List String) 
+Ann = List exception
+
+{- Types with effect annotations (or, alternatively, where the function arrow is
+   now a Kleisli morphism) -}
+data Type : Set where
+  nat    : Type
+  _[_]⇒_ : (a : Type) → (φ : Ann) → (b : Type) → Type
+
+private variable
+  α : Scope name
+
+data Term (α : Scope name) : Set where
+  TVar  : (x : name) → x ∈ α → Term α
+  TLam  : (x : name) (v : Term (x ∷ α)) → Term α
+  TApp  : (u v : Term α) → Term α
+  TRaise : (e : exception) → Term α
+  TCatch : (e : exception) → Term α → Term α → Term α
+  TDecl  : (e : exception) → Term α → Term α 
 
 private variable
   x : name
-  α : Scope name
-  a b : AnnType
-  u v : TermExc α
+  a b : Type
+  u v : Term α
   φ φ₁ φ₂ : Ann
-  Ξ Ξ₁ Ξ₂ : List String
-  e₁ e₂ e : String
+  Ξ : List exception
+  e : exception
 
--- Some operations on annotations, that we might need 
-postulate
-  addExc : Ann → Exception → Ann
-
-data _◂_⊢_∶_∣_ (Ξ : List String) (Γ : Context AnnType α) : TermExc α → AnnType → Ann → Set where
+data _◂_⊢_∶_∣_ (Ξ : List exception) (Γ : Context Type α) : Term α → Type → Ann → Set where
 
   TyTVar
     : (p : x ∈ α)
@@ -63,3 +69,4 @@ data _◂_⊢_∶_∣_ (Ξ : List String) (Γ : Context AnnType α) : TermExc α
     : (e ∷ Ξ) ◂ Γ ⊢ u ∶ a ∣ φ
     ---------------------------
     → Ξ ◂ Γ ⊢ TDecl e u ∶ a ∣ φ 
+
